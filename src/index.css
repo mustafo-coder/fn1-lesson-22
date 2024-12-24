@@ -11,3 +11,8 @@
 .create-article:hover{
   padding: 2px 2px 2px 20px;
 }
+nav .active{
+  color: black;
+  border: 1px solid black;
+  background: white;
+}

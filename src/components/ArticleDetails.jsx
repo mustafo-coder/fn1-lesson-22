@@ -1,9 +1,9 @@
 import React, { useState } from 'react'
-import { useNavigate, useParams } from 'react-router-dom'
+import { Link, useLocation, useNavigate, useParams } from 'react-router-dom'
 import useFetch from "../hooks/useFetch"
 import { useSelector } from 'react-redux'
 import { deleteArticleAPI } from '../service/api'
-import { Button } from '@mui/material'
+import { Button, IconButton } from '@mui/material'
 import { ArrowBackIos, ArrowLeft, BackHand, Delete } from '@mui/icons-material'
 
 const ArticleDetails = () => {
@@ -12,6 +12,7 @@ const ArticleDetails = () => {
   const { user } = useSelector(state => state.auth)
   const [open, setOpen] = useState(false);
   const navigate = useNavigate()
+  const location = useLocation()
   const deleteHandler = async () => {
     const token = localStorage.getItem("token")
     if (token) {
@@ -23,7 +24,15 @@ const ArticleDetails = () => {
     }
   }
   return (
-    <div className='container px-5 py-10'>
+    <div className='container px-5 pt-10 pb-28'>
+      <div className='flex max-w-[700px] mb-5 mx-auto justify-between items-center'>
+        <Link to="../">
+          <Button startIcon={<ArrowBackIos />} variant='outlined' size='sm' color='primary'>
+            Back
+          </Button>
+        </Link>
+        <p className='text-sm text-gray-500'>{location.pathname}</p>
+      </div>
       {loading ? <div className='py-20 text-center text-5xl text-gray-400'><i className='fa fa-circle-notch fa-spin'></i></div> :
         <div className='max-w-[700px] mx-auto'>
           <h2 className='text-2xl font-bold mb-7'>{data.title}</h2>
@@ -43,7 +52,7 @@ const ArticleDetails = () => {
           </div>}
         </div>}
       {open && <div className='fixed w-full top-0 start-0 h-full bg-black bg-opacity-75 flex justify-center items-center'>
-        <div className='p-5 bg-white'>
+        <div className='p-5 bg-white dark:bg-black rounded'>
           <h3>Siz ushbu articleni o'chirmoqchimisz?</h3>
           <div className='flex mt-5 gap-2'>
             <Button variant='outlined' onClick={() => setOpen(false)} color='primary' startIcon={<ArrowBackIos />}>
