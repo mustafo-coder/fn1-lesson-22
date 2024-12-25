@@ -42,7 +42,7 @@ export const createArticleAPI = async (body, token) => {
   });
   return res.data;
 };
-
+// done
 export const deleteArticleAPI = async (id, token) => {
   const res = await axios.delete(`/api/articles/${id}/delete/`, {
     credentials: "include",
@@ -53,7 +53,7 @@ export const deleteArticleAPI = async (id, token) => {
   });
   return res.data;
 };
-
+// done
 export const updateArticleAPI = async (id, body, token) => {
   const res = await axios.put(`/api/articles/${id}/update/`, body, {
     headers: {
@@ -64,16 +64,12 @@ export const updateArticleAPI = async (id, body, token) => {
   return res.data;
 };
 
-
 const token = localStorage.getItem("token");
-let image = false
 export const articlesApi = createApi({
   reducerPath: "articleApi",
   baseQuery: fetchBaseQuery({
     baseUrl: "https://mustafocoder.pythonanywhere.com",
-    headers: token
-      ? { "Content-Type": image ? "multipart/form-data" : "application/json", Authorization: `Token ${token}` }
-      : { "Content-Type": "application/json" },
+    headers: token ? { Authorization: `Token ${token}` } : {},
     credentials: "include",
   }),
   endpoints: (builder) => ({
@@ -93,13 +89,9 @@ export const articlesApi = createApi({
       query: (data) => ({
         url: `api/articles/${data.id}/update/`,
         method: "PUT",
-        body: JSON.stringify(data.body),
-        headers: {
-          "Content-Type": "multipart/form-data",
-          Authorization: `Token ${data.token}`
-        }
-      })
-    }, image = true)
+        body: data.formData,
+      }),
+    }),
   }),
 });
 
@@ -107,5 +99,5 @@ export const {
   useGetArticlesQuery,
   useGetSingleArticleQuery,
   useDeleteArticleMutation,
-  useUpdateArticleMutation
+  useUpdateArticleMutation,
 } = articlesApi;

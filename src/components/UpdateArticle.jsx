@@ -1,8 +1,7 @@
 import React, { useEffect, useRef, useState } from "react";
 import {
   articlesApi,
-  createArticleAPI,
-  updateArticleAPI,
+  useGetSingleArticleQuery,
   useUpdateArticleMutation,
 } from "../service/api";
 import { useDispatch, useSelector } from "react-redux";
@@ -11,30 +10,29 @@ import { Button, TextField } from "@mui/material";
 import { CloudUpload, Send } from "@mui/icons-material";
 import styled from "styled-components";
 import { LoadingButton } from "@mui/lab";
-import useFetch from "../hooks/useFetch";
 
 const UpdateArticle = () => {
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState(false);
-  const { user, isAuthenticated } = useSelector((state) => state.auth);
+  const { isAuthenticated } = useSelector((state) => state.auth);
+  const [loading, setLoading] = useState(false)
+  const [error, setError] = useState(false)
   const navigate = useNavigate();
   const { id } = useParams();
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
+
   const ref = useRef(null);
-  const dispatch = useDispatch()
+  const dispatch = useDispatch();
 
   const [updateArticle] = useUpdateArticleMutation();
 
+  const { data } = useGetSingleArticleQuery(id);
+
   useEffect(() => {
-    if (!isAuthenticated) {
+    if (!isAuthenticated || !data) {
       navigate("/");
     }
   }, [isAuthenticated]);
-  const headers = {
-    "Content-Type": "multipart/form-data",
-  };
-  const { data } = useFetch(`/api/article/${id}/`, { headers });
+
   useEffect(() => {
     if (data) {
       setTitle(data.title);
@@ -45,19 +43,15 @@ const UpdateArticle = () => {
   const formSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
-    const body = {
-      author: user.username,
-      title,
-      content
-    };
-    if(ref.current?.files[0]){
-      body.image = ref.current?.files[0]
+    const formData = new FormData(e.target);
+
+    if (ref.current?.files[0]) {
+      formData.append("image", ref.current?.files[0]);
     }
     try {
-      const token = localStorage.getItem("token")
-      const res = await updateArticle({id, body, token});
+      const res = await updateArticle({ id, formData });
       setError(false);
-      dispatch(articlesApi.util.resetApiState())
+      dispatch(articlesApi.util.resetApiState());
       navigate(`/articles/${res.data.id}`);
     } catch (error) {
       setError(true);
@@ -77,6 +71,7 @@ const UpdateArticle = () => {
     whiteSpace: "nowrap",
     width: 1,
   });
+
   const resetHandler = () => {
     setContent("");
     setTitle("");
@@ -108,7 +103,7 @@ const UpdateArticle = () => {
           startIcon={<CloudUpload />}
         >
           Upload files
-          <VisuallyHiddenInput type="file" name="image" ref={ref} multiple />
+          <VisuallyHiddenInput type="file" ref={ref} multiple />
         </Button>
         <TextField
           value={content}
